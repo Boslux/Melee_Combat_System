@@ -15,12 +15,17 @@ public class EnemyHealthMono : MonoBehaviour, IDamageable
     {
         adapter.TakeDamage(damage.Value);
 
-        Debug.Log($"Enemy Health: {adapter.GetCurrentHealth()}");
+        Debug.Log($"{gameObject.name} took {damage.Value} damage. Current HP: {adapter.GetCurrentHealth()}");
 
         if (adapter.IsDead())
         {
-            Debug.Log("Enemy Died");
-            Destroy(gameObject);
+            Die();
         }
+    }
+
+    private void Die()
+    {
+        Debug.Log($"{gameObject.name} died.");
+        Destroy(gameObject);
     }
 }
