@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 public class PlayerInputHandler : MonoBehaviour
 {
     public event Action OnAttackPressed;
+    public Vector2 MoveInput { get; private set; }
 
     private InputSystem inputActions;
 
@@ -25,8 +26,20 @@ public class PlayerInputHandler : MonoBehaviour
         inputActions.Disable();
     }
 
+    private void Update()
+    {
+        MoveInput = ReadMoveInput();
+    }
+
     private void HandleAttackPerformed(InputAction.CallbackContext context)
     {
         OnAttackPressed?.Invoke();
+    }
+
+    private Vector2 ReadMoveInput()
+    {
+        Vector2 move = inputActions.Player.Movement.ReadValue<Vector2>();
+
+        return move.normalized;
     }
 }

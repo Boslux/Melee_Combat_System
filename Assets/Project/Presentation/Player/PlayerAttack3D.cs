@@ -3,11 +3,14 @@ using UnityEngine;
 
 public class PlayerAttack3D : MonoBehaviour
 {
-    [SerializeField] private float attackRadius = 1.5f;
-    [SerializeField] private int damage = 20;
-    [SerializeField] private float attackCooldown = 0.5f;
+    [Header("Attack Config")]
+    [SerializeField] private AttackConfig attackConfig;
+
+    [Header("Detection")]
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private Transform attackPoint;
+
+    [Header("References")]
     [SerializeField] private PlayerInputHandler inputHandler;
 
     private AttackUseCase attackUseCase;
@@ -16,7 +19,9 @@ public class PlayerAttack3D : MonoBehaviour
     private void Awake()
     {
         attackUseCase = new AttackUseCase();
-        lastAttackTime = -attackCooldown;
+
+        if (attackConfig != null)
+            lastAttackTime = -attackConfig.Cooldown;
     }
 
     private void OnEnable()
@@ -33,16 +38,21 @@ public class PlayerAttack3D : MonoBehaviour
 
     private void TryAttack()
     {
+        if (attackConfig == null)
+        {
+            Debug.LogWarning("AttackConfig is missing.");
+            return;
+        }
+
         if (!CanAttack())
             return;
 
         Attack();
-        lastAttackTime = Time.time;
     }
 
     private bool CanAttack()
     {
-        return Time.time >= lastAttackTime + attackCooldown;
+        return Time.time >= lastAttackTime + attackConfig.Cooldown;
     }
 
     private void Attack()
@@ -53,30 +63,30 @@ public class PlayerAttack3D : MonoBehaviour
             return;
         }
 
+        AttackData attackData = attackConfig.ToAttackData();
+
         var detection = new SphereDetection3D(
             attackPoint.position,
-            attackRadius,
+            attackData.Range,
             targetLayer
         );
 
         List<IDamageable> targets = detection.Detect();
 
-        Debug.Log($"Attack triggered. Target count: {targets.Count}");
-
-        var attackData = new AttackData(damage, attackRadius);
-
         foreach (var target in targets)
         {
             attackUseCase.Execute(target, attackData);
         }
+
+        lastAttackTime = Time.time;
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (attackPoint == null)
+        if (attackPoint == null || attackConfig == null)
             return;
 
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRadius);
+        Gizmos.DrawWireSphere(attackPoint.position, attackConfig.Range);
     }
 }

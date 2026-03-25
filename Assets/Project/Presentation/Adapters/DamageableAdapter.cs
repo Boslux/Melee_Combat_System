@@ -12,6 +12,21 @@ public class DamageableAdapter
         entity.TakeDamage(new Damage(damage));
     }
 
+    public void ApplyHit(float duration)
+    {
+        entity.OnHit(duration);
+    }
+
+    public void Tick(float deltaTime)
+    {
+        entity.Tick(deltaTime);
+    }
+
+    public EntityState GetState()
+    {
+        return entity.State;
+    }
+
     public int GetCurrentHealth()
     {
         return entity.Health.Current;
@@ -19,6 +34,6 @@ public class DamageableAdapter
 
     public bool IsDead()
     {
-        return entity.Health.IsDead;
+        return entity.State == EntityState.Dead;
     }
 }

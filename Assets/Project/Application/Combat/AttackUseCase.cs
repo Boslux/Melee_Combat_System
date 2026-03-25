@@ -4,5 +4,15 @@ public class AttackUseCase
     {
         var damage = new Damage(attackData.Damage);
         target.TakeDamage(damage);
+
+        if (target is IHitReactable hitReactable)
+        {
+            hitReactable.OnHit(attackData.HitStunDuration);
+        }
+
+        if (target is IKnockbackable knockbackable)
+        {
+            knockbackable.ApplyKnockback(attackData.KnockbackForce);
+        }
     }
 }
